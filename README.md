@@ -10,44 +10,6 @@ GNNs overfit easily, and knowledge distillation helps only when a well-trained t
 
 ---
 
-## Contents
-
-- [Method in brief](#method-in-brief)
-- [Repository layout](#repository-layout)
-- [Installation](#installation)
-- [Quick start](#quick-start)
-- [Reproducing the experiments](#reproducing-the-experiments)
-- [Command-line reference](#command-line-reference)
-- [Outputs](#outputs)
-- [Differences from the notebooks](#differences-from-the-notebooks)
-- [Scope](#scope)
-- [Citation](#citation)
-
-## Method in brief
-
-**Training objective (Eq. 9)**
-
-$$\mathcal{L} = \alpha\,\mathcal{L}_{ce} + \beta\,\mathcal{L}_{sim} + \gamma\,\mathcal{L}_{kd}$$
-
-- $\mathcal{L}_{ce}$ is cross-entropy on the labelled training nodes.
-- $\mathcal{L}_{sim}$ is the mean squared error between the teacher's and student's tempered soft predictions (Eq. 2).
-- $\mathcal{L}_{kd}$ is competency-weighted distillation (Eqs. 3–7):
-
-$$\mathcal{L}_{kd} = \psi_1(x)\,\mathrm{KL}(S_t \,\|\, S_m) + \psi_2(x)\,\mathrm{KL}(S_t \,\|\, T), \qquad \psi_1 = \frac{u(x)}{U},\ \ \psi_2 = 1-\frac{u(x)}{U}$$
-
-Here $u(x)$ is the student's prediction uncertainty for node $x$: Shannon entropy by default, normalised by $U=\log C$ for $C$ classes.
-
-**Memory policies (Sect. 4.5).** The memory holds one past snapshot $S_m$ of the student. After each epoch, the policy decides whether the previous epoch's snapshot $S_{t-1}$ replaces it:
-
-| Policy | `--memory` | Rule |
-|---|---|---|
-| Divergent (DM) | `divergent` | replace if $\mathrm{KL}(S_t\|S_{t-1}) > \mathrm{KL}(S_t\|S_m)$: keep the more *different* snapshot. **Best overall in the paper.** |
-| Convergent (CM) | `convergent` | replace if $\mathrm{KL}(S_t\|S_{t-1}) < \mathrm{KL}(S_t\|S_m)$: keep the *closer* snapshot |
-| 1-step back (1-SB) | `1sb` | always replace: memory is the previous epoch |
-| Random (RD) | `random` | memory is a uniformly random past epoch (reservoir sampling, no history stored) |
-
-The memory starts as the teacher's weights when teacher and student share an architecture, as in the paper. Its cost is one model copy, whatever the number of epochs.
-
 **Training data (Sect. 4.2).** The teacher is trained on the full graph. The student is trained on a subgraph drawn with `LinkNeighborLoader`, using 100 neighbours per hop over 10 hops and a batch of 512 seed edges.
 
 ## Repository layout
@@ -194,20 +156,6 @@ results/<dataset>_<model>/
 
 Metrics reported: top-1 accuracy, macro precision, recall and F1, expected calibration error (15 bins), linear CKA between student and teacher embeddings, inference time and GFLOPs. fvcore does not count PyG's scatter and gather operators, so treat its GFLOPs as a lower bound.
 
-## Differences from the notebooks
-
-The package re-implements the two research notebooks in `notebooks/`. Where the notebooks and the paper disagree, the paper is the default and the notebook behaviour is kept behind a flag:
-
-| Notebook behaviour | In this repository |
-|---|---|
-| `F.kl_div` is applied to probabilities rather than log-probabilities. The memory term compares *memory vs teacher*, so it carries no gradient to the student. Both terms share one uncertainty weight. | `--loss-impl paper` (default) implements Eqs. 3–7: KL(S‖S_m) and KL(S‖T), weighted by u and 1−u, scaled by τ². `--loss-impl notebook` reproduces the notebook loss exactly. |
-| The memory-update test `loss_div[epoch-1] < loss_div[epoch]` indexes a per-*node* divergence vector by epoch. In the divergent GCN cell the test is commented out, so memory is overwritten every epoch. | Memory policies follow Sect. 4.5 and compare mean KL(S_t‖S_{t-1}) with KL(S_t‖S_m) (`masd/memory.py`). |
-| The random memory saves the current model when `epoch * randint(0, 1) == 0`. | Reservoir sampling keeps a uniformly random past epoch (Sect. 4.5.4). |
-| The best student is selected on **test** accuracy. | Selected on validation accuracy by default (`--select-on test` to match the notebooks). |
-| The teacher is loaded from `memory.pth`, which is never saved, and `GCN` is used but never defined. | `train_teacher.py` saves the teacher, and `GCN` and `GraphSAGE` are defined in `masd/models.py`. |
-| The GAT distillation cell runs for 2 epochs. | 250 epochs with early stopping (Sect. 5.1). |
-| MLP and Graph Transformer return raw logits and take a `Data` object. | Every model takes `(x, edge_index)` and returns log-probabilities, so any backbone can be teacher or student. |
-| One cell explores an RL reward-policy distillation and another loads Chameleon from a `.mat` file. | Not included; neither is part of the paper. |
 
 ## Scope
 
@@ -238,6 +186,8 @@ The `MemoryBank` and `masd_loss` components are model- and task-agnostic. To ext
 
 The CKA implementation is adapted from [yuanli2333/CKA-Centered-Kernel-Alignment](https://github.com/yuanli2333/CKA-Centered-Kernel-Alignment). Models and data loaders are built on [PyTorch Geometric](https://github.com/pyg-team/pytorch_geometric).
 
-## License
+## Contact
 
-Add a `LICENSE` file before making the repository public (for example MIT or Apache-2.0).
+please contact saurabh_2021cs30@iitp.ac.in for any discrepancy.
+
+
