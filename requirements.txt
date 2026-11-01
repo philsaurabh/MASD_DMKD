@@ -1,0 +1,13 @@
+# Core (the notebooks ran on torch 2.10 + PyTorch Geometric from source)
+torch>=2.1
+torch_geometric>=2.5
+# Neighbour sampling backend for LinkNeighborLoader: install pyg-lib OR torch-sparse
+# from the wheel index matching your torch/CUDA build, e.g.
+#   pip install pyg_lib -f https://data.pyg.org/whl/torch-${TORCH}+${CUDA}.html
+numpy
+scikit-learn
+torchmetrics>=1.0
+fvcore
+matplotlib
+seaborn
+pytest

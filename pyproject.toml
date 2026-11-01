@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "masd"
+version = "1.0.0"
+description = "Memory Augmented Self-Distillation (MASD) for graph neural networks"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+  { name = "Saurabh Sharma" },
+  { name = "Souvik Chowdhury" },
+  { name = "Joydeep Chandra" },
+]
+dependencies = [
+  "torch>=2.1",
+  "torch_geometric>=2.5",
+  "numpy",
+  "scikit-learn",
+  "torchmetrics>=1.0",
+  "fvcore",
+  "matplotlib",
+  "seaborn",
+]
+
+[tool.setuptools]
+packages = ["masd"]

@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the paper below."
+title: "MASD: Memory Augmented Self-Distillation for graph neural networks"
+type: software
+authors:
+  - family-names: Sharma
+    given-names: Saurabh
+  - family-names: Chowdhury
+    given-names: Souvik
+  - family-names: Chandra
+    given-names: Joydeep
+preferred-citation:
+  type: article
+  title: "Taking lessons from history: Memory Augmented Self Distillation for graph neural networks"
+  authors:
+    - family-names: Sharma
+      given-names: Saurabh
+    - family-names: Chowdhury
+      given-names: Souvik
+    - family-names: Chandra
+      given-names: Joydeep
+  journal: "Data Mining and Knowledge Discovery"
+  volume: 40
+  start: 86
+  year: 2026
+  doi: "10.1007/s10618-026-01258-z"
